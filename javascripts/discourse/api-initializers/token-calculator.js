@@ -8,7 +8,7 @@ import { apiInitializer } from "discourse/lib/api";
 // ============================================
 
 const MODAL_ID = "token-calc-modal";
-const BTN_CLASS = "token-calc-btn";
+const ITEM_NAME = "token-calculator";
 
 // ============================================
 // THEME DETECTION
@@ -96,100 +96,36 @@ function showTokenCalcModal() {
 }
 
 // ============================================
-// SIDEBAR LINK
-// ============================================
-
-function buildLink(tag) {
-  const el = document.createElement(tag);
-  el.className = "sidebar-section-link-wrapper token-calc-wrapper";
-  el.innerHTML = `
-    <a class="${BTN_CLASS} sidebar-section-link sidebar-row" href="#" title="${settings.token_calc_button_text}">
-      <span class="sidebar-section-link-prefix icon">
-        <svg class="fa d-icon d-icon-${settings.token_calc_button_icon} svg-icon prefix-icon svg-string" aria-hidden="true"><use href="#${settings.token_calc_button_icon}"></use></svg>
-      </span>
-      <span class="sidebar-section-link-content-text">${settings.token_calc_button_text}</span>
-    </a>
-  `;
-  el.querySelector("." + BTN_CLASS).addEventListener("click", (e) => {
-    e.preventDefault();
-    showTokenCalcModal();
-  });
-  return el;
-}
-
-function addDesktopLink() {
-  if (document.querySelector(".sidebar-sections ." + BTN_CLASS)) return true;
-
-  const section = document.querySelector("#sidebar-section-content-community");
-  if (!section) return false;
-
-  // Appended to the end of the Community section. Intentionally not anchored to
-  // any other component's button — position is best-effort, presence is not.
-  section.appendChild(buildLink("li"));
-  return true;
-}
-
-function addMobileLink() {
-  if (document.querySelector("." + BTN_CLASS)) return;
-
-  const panel = document.querySelector(".hamburger-panel .menu-panel, .sidebar-hamburger-dropdown");
-  if (!panel) return;
-
-  // Never inject into the user menu.
-  if (panel.querySelector(".quick-access-panel, .user-menu, [class*='user-menu']")) return;
-
-  const list = panel.querySelector(".panel-body ul") || panel.querySelector(".panel-body");
-  if (!list) return;
-
-  const item = buildLink("li");
-  if (list.tagName === "UL") {
-    list.appendChild(item);
-  } else {
-    const ul = list.querySelector("ul");
-    if (ul) ul.appendChild(item);
-  }
-}
-
-function addLinks() {
-  if (!addDesktopLink()) {
-    // The sidebar renders asynchronously. Bounded retries — no infinite loop.
-    let tries = 0;
-    const retry = setInterval(() => {
-      if (addDesktopLink() || ++tries >= 6) clearInterval(retry);
-    }, 500);
-  }
-  addMobileLink();
-}
-
-// ============================================
 // INIT
 // ============================================
 
 export default apiInitializer("1.8.0", (api) => {
   if (!settings.token_calc_show_in_sidebar) return;
 
-  api.onPageChange(() => setTimeout(addLinks, 500));
+  // Registered through the sidebar API, matching the Workplace and worX links
+  // in discourse-affine-sidebar. An earlier version injected an <li> into the
+  // rendered DOM instead, which put the link in Discourse's overflow bucket —
+  // the collapsed "más…" at the foot of the Community section. Position is
+  // then set with CSS `order` (see common.scss).
+  //
+  // href is the real URL rather than "#": middle-click and open-in-new-tab
+  // still do the sensible thing, and the click handler below takes over the
+  // plain left-click to open the modal instead.
+  api.addCommunitySectionLink({
+    name: ITEM_NAME,
+    href: settings.token_calc_url,
+    title: settings.token_calc_button_text,
+    text: settings.token_calc_button_text,
+    icon: settings.token_calc_button_icon,
+  });
 
+  // Delegated: survives every sidebar re-render without observers or retries.
   document.addEventListener("click", (e) => {
-    if (e.target.closest(".hamburger-panel") || e.target.closest(".btn-sidebar-toggle")) {
-      setTimeout(addLinks, 300);
-    }
+    const link = e.target.closest(`[data-list-item-name="${ITEM_NAME}"] a`);
+    if (!link) return;
+    // Leave modified clicks alone — those mean "open it somewhere else".
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
+    e.preventDefault();
+    showTokenCalcModal();
   });
-
-  const observer = new MutationObserver((mutations) => {
-    for (const m of mutations) {
-      for (const node of m.addedNodes) {
-        if (
-          node.nodeType === 1 &&
-          (node.classList?.contains("menu-panel") || node.querySelector?.(".menu-panel"))
-        ) {
-          setTimeout(addLinks, 100);
-          return;
-        }
-      }
-    }
-  });
-  observer.observe(document.body, { childList: true, subtree: true });
-
-  setTimeout(addLinks, 800);
 });

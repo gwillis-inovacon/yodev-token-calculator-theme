@@ -104,3 +104,27 @@
     border-radius: 0;
   }
 }
+
+// ---------------------------------------------------------------------------
+// Sidebar position
+//
+// Slot 3, directly beneath yoDEV worX. The ordering scheme is owned by
+// discourse-affine-sidebar, which flexes this section and pins Workplace at
+// -100 and worX at -99; core links sit at the default 0. -98 lands us between
+// them and everything Discourse ships.
+//
+// The flex declaration is repeated here on purpose. It is identical to the one
+// in discourse-affine-sidebar, so declaring it twice is a no-op, but it means
+// this component still positions itself correctly if that one is ever disabled.
+//
+// COUPLING: if the -100 / -99 values in discourse-affine-sidebar change, this
+// number has to move with them.
+// ---------------------------------------------------------------------------
+#sidebar-section-content-community {
+  display: flex;
+  flex-direction: column;
+
+  li[data-list-item-name="token-calculator"] {
+    order: -98;
+  }
+}

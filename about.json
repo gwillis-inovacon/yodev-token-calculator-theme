@@ -3,5 +3,10 @@
   "about_url": "https://github.com/gwillis-inovacon/yodev-token-calculator-theme",
   "component": true,
   "authors": "yoDEV.dev",
-  "minimum_discourse_version": "2.7.0"
+  "minimum_discourse_version": "3.0.0",
+  "modifiers": {
+    "svg_icons": [
+      "calculator"
+    ]
+  }
 }

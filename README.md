@@ -24,10 +24,16 @@ button on the component's page.
 
 ## How it works
 
-The sidebar entry is injected into `#sidebar-section-content-community` as a
-plain anchor with a click handler, rather than registered through the sidebar
-API. This matches the approach already proven on this install by the Remote Jobs
-component.
+The sidebar entry is registered with `api.addCommunitySectionLink()`, matching
+the Workplace and worX links in `discourse-affine-sidebar`. A delegated click
+handler on the rendered item takes over the plain left-click and opens the
+modal; modified clicks (middle-click, cmd/ctrl) are left alone, so
+open-in-new-tab still goes to the calculator page directly.
+
+Position is slot 3, directly beneath yoDEV worX. `discourse-affine-sidebar`
+flexes the Community section and pins Workplace at `order: -100` and worX at
+`-99`; core links sit at the default `0`. This component claims `-98`. **If
+those numbers change there, this one has to move with them.**
 
 Discourse's CSS custom properties do not cross the iframe boundary, so the
 calculator cannot read the forum's colour scheme. The component derives
@@ -56,7 +62,15 @@ currently lives in `yodev-remote-jobs/public/`, served at
 
 ## Known limitations
 
-Sidebar injection targets Discourse's rendered DOM (`#sidebar-section-content-community`
-and the `sidebar-section-link*` classes). Those are markup details, not a public
-API, so a future Discourse release can change them and silently drop the link.
-If the link disappears after an upgrade, that selector is the first thing to check.
+The icon must be listed in `modifiers.svg_icons` in `about.json`. Discourse ships
+a subset of Font Awesome, and an icon outside it renders as nothing at all — the
+link appears with a blank prefix rather than erroring. Changing
+`token_calc_button_icon` means updating that list too.
+
+## History
+
+The first version injected an `<li>` into the rendered DOM rather than using the
+sidebar API. It worked, but Discourse put the link in the Community section's
+overflow bucket — the collapsed "más…" at the foot of the list — where nobody
+found it. It also carried a MutationObserver, timed retries and a separate
+mobile-hamburger path, all of which the sidebar API makes unnecessary.
