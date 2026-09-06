@@ -1,0 +1,8 @@
+{
+  "name": "Token Calculator",
+  "about_url": "https://github.com/gwillis-inovacon/yodev-token-calculator-theme",
+  "license_url": "https://github.com/gwillis-inovacon/yodev-token-calculator-theme/blob/main/LICENSE",
+  "component": true,
+  "authors": "yoDEV.dev",
+  "minimum_discourse_version": "2.7.0"
+}

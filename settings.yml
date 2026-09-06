@@ -1,0 +1,19 @@
+token_calc_url:
+  default: "https://www.yodev.dev/calculadora-de-tokens"
+  description: "URL de la calculadora de tokens que se abre en el modal"
+
+token_calc_button_text:
+  default: "Calculadora de tokens"
+  description: "Texto del enlace en la barra lateral"
+
+token_calc_button_icon:
+  default: "calculator"
+  description: "Nombre del icono Font Awesome para el enlace"
+
+token_calc_show_in_sidebar:
+  default: true
+  description: "Mostrar el enlace de la calculadora en la barra lateral"
+
+token_calc_pass_theme:
+  default: true
+  description: "Añadir ?theme=dark|light a la URL para que la calculadora use el mismo tema que el foro"
