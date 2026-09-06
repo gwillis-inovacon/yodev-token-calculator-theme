@@ -16,7 +16,7 @@ button on the component's page.
 
 | Setting | Default | What it does |
 |---|---|---|
-| `token_calc_url` | `https://www.yodev.dev/calculadora-de-tokens` | Page loaded in the modal |
+| `token_calc_url` | `https://remote-jobs.yodev.dev/calculadora-de-tokens.html` | Page loaded in the modal |
 | `token_calc_button_text` | `Calculadora de tokens` | Sidebar label and modal title |
 | `token_calc_button_icon` | `calculator` | Font Awesome icon name |
 | `token_calc_show_in_sidebar` | `true` | Master on/off switch |
@@ -40,10 +40,19 @@ entirely client-side and needs nothing from Discourse except the theme hint.
 
 ## Requirements
 
-The page at `token_calc_url` must be served from an origin this forum is allowed
-to frame. Same-origin (`www.yodev.dev`) is simplest; a different subdomain needs
-Discourse's CSP `frame-src` to permit it and the page itself to allow framing via
-`frame-ancestors`.
+The page at `token_calc_url` must be served from a host that does not refuse
+framing. Discourse itself imposes no restriction — its CSP sets `frame-ancestors`
+but no `frame-src`, so the forum may frame any origin.
+
+The constraint is on the *target*. The yoDEV tool subdomains
+(`remote-jobs.yodev.dev` and friends) send no `X-Frame-Options` and no CSP, which
+is why the Remote Jobs component has always worked. **The apex `yodev.dev` is the
+exception**: it sends `X-Frame-Options: DENY` and `frame-ancestors 'none'`, so a
+page hosted there cannot be framed without a path-scoped header exception.
+
+Host the calculator on a tool subdomain and there is nothing to configure. It
+currently lives in `yodev-remote-jobs/public/`, served at
+`remote-jobs.yodev.dev`.
 
 ## Known limitations
 
