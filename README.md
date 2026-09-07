@@ -16,7 +16,7 @@ button on the component's page.
 
 | Setting | Default | What it does |
 |---|---|---|
-| `token_calc_url` | `https://remote-jobs.yodev.dev/calculadora-de-tokens.html` | Page loaded in the modal |
+| `token_calc_url` | `https://yodev.dev/calculadora-de-tokens` | Page loaded in the modal |
 | `token_calc_button_text` | `Calculadora de tokens` | Sidebar label and modal title |
 | `token_calc_button_icon` | `calculator` | Font Awesome icon name |
 | `token_calc_show_in_sidebar` | `true` | Master on/off switch |
@@ -56,9 +56,16 @@ is why the Remote Jobs component has always worked. **The apex `yodev.dev` is th
 exception**: it sends `X-Frame-Options: DENY` and `frame-ancestors 'none'`, so a
 page hosted there cannot be framed without a path-scoped header exception.
 
-Host the calculator on a tool subdomain and there is nothing to configure. It
-currently lives in `yodev-remote-jobs/public/`, served at
-`remote-jobs.yodev.dev`.
+The calculator lives on the apex, at `yodev.dev/calculadora-de-tokens`, which
+is the indexed copy and the one the article links to. The apex normally refuses
+framing, so `server.ts` in `yoDEV-Homepage-NEW` carries a path-scoped exception
+for exactly this URL: it omits `X-Frame-Options` and sets
+`frame-ancestors 'self' https://www.yodev.dev`. Every other path there keeps
+`DENY`.
+
+It launched on `remote-jobs.yodev.dev`, which still 301s to the apex so older
+links keep working. Do not point this setting back at it — two hosts serving the
+same page is the duplicate-content problem the move existed to solve.
 
 ## Known limitations
 
